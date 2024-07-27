@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item List App</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Item List App</h1>
+        <form id="item-form">
+            <input type="text" id="item-name" placeholder="Item name" required>
+            <button type="submit">Add Item</button>
+        </form>
+        <ul id="items-list"></ul>
+    </div>
+
+    <script>
+        document.getElementById('item-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const itemName = document.getElementById('item-name').value;
+
+            // Make POST request to FastAPI backend
+            const response = await fetch('http://127.0.0.1:8000/items/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: itemName })
+            });
+
+            if (response.ok) {
+                document.getElementById('item-name').value = ''; // Clear input
+                fetchItems(); // Refresh item list
+            }
+        });
+
+        async function fetchItems() {
+            const response = await fetch('http://127.0.0.1:8000/items/');
+            const items = await response.json();
+            const itemsList = document.getElementById('items-list');
+            itemsList.innerHTML = '';
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item.name;
+                itemsList.appendChild(listItem);
+            });
+        }
+
+        // Initial fetch of items
+        fetchItems();
+    </script>
+</body>
+</html>
